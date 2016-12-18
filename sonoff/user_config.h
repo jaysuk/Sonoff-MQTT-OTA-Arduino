@@ -1,5 +1,9 @@
 /*********************************************************************************************\
  * User specific configuration parameters
+ * 
+ * ATTENTION: Changes to most PARAMETER defines will only override flash settings if you change
+ *            define CFG_HOLDER. 
+ *            Most parameters can be changed online using commands via MQTT, WebConsole or serial
  *
  * Corresponding MQTT/Serial/Console commands in [brackets]
 \*********************************************************************************************/
@@ -105,6 +109,7 @@
 // -- Application ----------------------------
 #define APP_TIMEZONE           1            // [Timezone] +1 hour (Amsterdam) (-12 .. 12 = hours from UTC, 99 = use TIME_DST/TIME_STD)
 #define APP_LEDSTATE           LED_POWER    // [LedState] Function of led (LED_OFF, LED_POWER, LED_MQTTSUB, LED_POWER_MQTTSUB, LED_MQTTPUB, LED_POWER_MQTTPUB, LED_MQTT, LED_POWER_MQTT)
+#define APP_PULSETIME          0            // [PulseTime] Time in 0.1 Sec to turn off power for relay 1 (0 = disabled)
 
 #define TEMP_RESOLUTION        1            // Maximum number of decimals (0 - 3) showing sensor Temperature
 #define HUMIDITY_RESOLUTION    1            // Maximum number of decimals (0 - 3) showing sensor Humidity
