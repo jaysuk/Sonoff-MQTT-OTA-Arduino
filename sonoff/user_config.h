@@ -14,6 +14,7 @@
 //#define MODULE                 SONOFF_POW        // Sonoff Pow
 //#define MODULE                 MOTOR_CAC         // iTead Motor Clockwise/Anticlockwise
 //#define MODULE                 ELECTRO_DRAGON    // Electro Dragon Wifi IoT Relay Board Based on ESP8266
+//#define MODULE                 GENERIC_ESP       // GENERIC ESP12
 
 // -- Project --------------------------------
 #define PROJECT                "sonoff"     // PROJECT is used as the default topic delimiter and OTA file name
@@ -305,6 +306,27 @@
   #define I2C_SDA_PIN          4            // GPIO 4 = I2C SDA (Sonoff_TH10A(16A)- Needs extra hardware)
   #define I2C_SCL_PIN          14           // GPIO 14 = I2C SCL (Sonoff_TH10A(16A))
 //  #define SEND_TELEMETRY_I2C                // Enable sending I2C sensor telemetry
+
+/*********************************************************************************************\
+ * Generic ESP-12 Board
+ * 
+ * >>> Select Board "Generic ESP8266 Module" and Flash Size "4M (1M SPIFFS)" <<<
+\*********************************************************************************************/
+
+#elif MODULE == GENERIC_ESP                 
+  #define APP_NAME             "Generic 8266 module"
+  #define MQTT_GRPTOPIC        "generic"    // [GroupTopic] MQTT Group topic
+/*-------------------------------------------------------------------------------------------*/
+  #define LED_PIN              13           // GPIO 13 = Green/Blue Led (0 = On, 1 = Off) - Sonoff
+  #define LED_INVERTED         1            // 0 = (1 = On, 0 = Off), 1 = (0 = On, 1 = Off)
+  #define REL_PIN              12           // GPIO 12 = Red Led and Relay (0 = Off, 1 = On)
+  #define KEY_PIN              0            // GPIO 00 = Button
+/*-------------------------------------------------------------------------------------------*\
+ * I2C devices BMP085, BMP180, BMP280, BME280 and HTU21D
+\*-------------------------------------------------------------------------------------------*/
+  #define I2C_SDA_PIN          4            // GPIO 04 = I2C SDA (Generic ESP-12)
+  #define I2C_SCL_PIN          5            // GPIO 05 = I2C SCL (Generic ESP-12)
+  #define SEND_TELEMETRY_I2C                // Enable sending I2C sensor telemetry
 
 /*********************************************************************************************\
  * No user configurable items below
