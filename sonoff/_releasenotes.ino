@@ -1,4 +1,36 @@
-/* 3.1.7 20161231
+/* 3.1.15 20170108
+ * Fix Domoticz send key regression with Toggle command  
+ *
+ * 3.1.14 20170107
+ * Add support for command TOGGLE (define MQTT_CMND_TOGGLE) when ButtonTopic is in use and not equal to Topic (#207)
+ *
+ * 3.1.13 20170107
+ * Fix web console command input when SUB_PREFIX contains '/' (#152)
+ * Add command response to web command (#200)
+ * Add option to disable MQTT as define USE_MQTT in user_config.h (#200)
+ *
+ * 3.1.12 20170106
+ * Add OTA retry to solve possible HTTP transient errors (#204)
+ * Fix MQTT host discovery
+ *
+ * 3.1.11 20170105
+ * Add mDNS to advertise webserver as <hostname>.local/
+ *
+ * 3.1.10 20170105
+ * Fix ButtonTopic when SUB_PREFIX = PUB_PREFIX
+ * Add workaround for possible MQTT queueing when SUB_PREFIX = PUB_PREFIX
+ * Add optional MQTT host discovery using define USE_DISCOVERY in user_config.h (#115)
+ *
+ * 3.1.9 20170104
+ * Fix Power Blink start position (toggled)
+ * Change PulseTime increments: 1 .. 111 in 0.1 sec (max 11 seconds) and 112 .. 64900 in seconds (= 12 seconds until 18 hours) (#188)
+ * Add support for SUB_PREFIX = PUB_PREFIX (#190)
+ *
+ * 3.1.8 20170103
+ * Add retain flag to LWT offline and only send "tele/sonoff/LWT Offline" (#179)
+ * Change retained LWT Online message to only send "tele/sonoff/LWT Online"
+ *
+ * 3.1.7 20161231
  * Add retained message LWT Online when sonoff makes MQTT connection (#179)
  *
  * 3.1.6 20161230

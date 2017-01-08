@@ -46,6 +46,8 @@
 #endif
 
 // -- MQTT -----------------------------------
+#define USE_MQTT                            // Enable MQTT and Domoticz (+10k code, +1k mem)
+
 // !!! TLS uses a LOT OF MEMORY (20k) so be careful to enable other options at the same time !!!
 //#define USE_MQTT_TLS                        // EXPERIMENTAL Use TLS for MQTT connection (+53k code, +20k mem)
                                             //   Needs Fingerprint, TLS Port, UserId and Password
@@ -73,8 +75,9 @@
 #define MQTT_POWER_RETAIN      0            // [PowerRetain] Power status message may send retain flag (0 = off, 1 = on)
 
 #define MESSAGE_FORMAT         LEGACY       // [MessageFormat] MQTT Message Format (LEGACY or JSON)
-#define MQTT_STATUS_ON         "ON"         // Status result when turned on (needs to be a string like "1" or "On")
-#define MQTT_STATUS_OFF        "OFF"        // Status result when turned off (needs to be a string like "0" or "Off")
+#define MQTT_STATUS_OFF        "OFF"        // Command or Status result when turned off (needs to be a string like "0" or "Off")
+#define MQTT_STATUS_ON         "ON"         // Command or Status result when turned on (needs to be a string like "1" or "On")
+#define MQTT_CMND_TOGGLE       "TOGGLE"     // Command to send when toggling (needs to be a string like "2" or "Toggle")
 
 // -- MQTT - Telemetry -----------------------
 #define TELE_PERIOD            300          // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
@@ -100,6 +103,11 @@
 #define USE_WEBSERVER                       // Enable web server and wifi manager (+43k code, +2k mem) - Disable by //
 //  #define USE_WEMO_EMULATION                // Enable Belkin WeMo PowerSwitch emulation for Alexa (+4k code, +2k mem)
   #define WEB_SERVER           2            // [WebServer] Web server (0 = Off, 1 = Start as User, 2 = Start as Admin)
+
+// -- mDNS -----------------------------------
+#define USE_DISCOVERY                       // Enable mDNS for the following services (+8k code, +0.3k mem)
+  #define WEBSERVER_ADVERTISE               // Provide access to webserver by name <Hostname>.local/
+  #define MQTT_HOST_DISCOVERY               // Find MQTT host server (overrides MQTT_HOST if found)
 
 // -- Time - Up to three NTP servers in your region
 #define NTP_SERVER1            "pool.ntp.org"
