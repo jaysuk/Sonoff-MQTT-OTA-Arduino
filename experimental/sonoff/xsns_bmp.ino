@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Heiko Krupp and Theo Arends.  All rights reserved.
+ Copyright (c) 2017 Heiko Krupp and Theo Arends.  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef SEND_TELEMETRY_I2C
+#ifdef USE_I2C
+#ifdef USE_BMP
 /*********************************************************************************************\
  * BMP085, BMP180, BMP280, BME280 - Pressure and Temperature and Humidy (BME280 only)
  *
@@ -459,6 +460,7 @@ void bmp_mqttPresent(char* stopic, uint16_t sstopic, char* svalue, uint16_t ssva
   }
 }
 
+#ifdef USE_WEBSERVER
 String bmp_webPresent()
 {
   String page = "";
@@ -480,4 +482,7 @@ String bmp_webPresent()
   }
   return page;
 }
-#endif //SEND_TELEMETRY_I2C
+#endif  // USE_WEBSERVER
+#endif  // USE_BMP
+#endif  // USE_I2C
+

@@ -375,9 +375,7 @@ void WIFI_config(uint8_t type)
 {
   if (!_wificonfigflag) {
     if (type == WIFI_RETRY) return;
-#ifdef USE_WEMO_EMULATION
-    UDP_Disconnect();
-#endif  // USE_WEMO_EMULATION
+    if (udpConnected) WiFiUDP::stopAll();
     WiFi.disconnect();        // Solve possible Wifi hangs
     _wificonfigflag = type;
     _wifiConfigCounter = WIFI_CONFIG_SEC;   // Allow up to WIFI_CONFIG_SECS seconds for phone to provide ssid/pswd
@@ -412,9 +410,7 @@ void WIFI_begin(uint8_t flag)
   const char PhyMode[] = " BGN";
   char log[LOGSZ];
 
-#ifdef USE_WEMO_EMULATION
-  UDP_Disconnect();
-#endif  // USE_WEMO_EMULATION
+  if (udpConnected) WiFiUDP::stopAll();
   if (!strncmp(ESP.getSdkVersion(),"1.5.3",5)) {
     addLog_P(LOG_LEVEL_DEBUG, "Wifi: Patch issue 2186");
     WiFi.mode(WIFI_OFF);    // See https://github.com/esp8266/Arduino/issues/2186
@@ -540,13 +536,11 @@ void WIFI_Check(uint8_t param)
           stopWebserver();
         }
 #ifdef USE_WEMO_EMULATION
-        UDP_Connect();
+        if (udpConnected == false) udpConnected = UDP_Connect();
 #endif  // USE_WEMO_EMULATION
 #endif  // USE_WEBSERVER
       } else {
-#ifdef USE_WEMO_EMULATION
-        UDP_Disconnect();
-#endif  // USE_WEMO_EMULATION
+        udpConnected = false;
         mDNSbegun = false;
       }
     }
@@ -686,28 +680,17 @@ void pollUDP()
   }
 }
 
-boolean UDP_Disconnect()
-{
-  if (udpConnected) {
-    WiFiUDP::stopAll();
-    addLog_P(LOG_LEVEL_DEBUG, PSTR("UPnP: Multicast disabled"));
-    udpConnected = false;
-  }
-  return udpConnected;
-}
-
 boolean UDP_Connect()
 {
-  if (!udpConnected) {
-    if (portUDP.beginMulticast(WiFi.localIP(), ipMulticast, portMulticast)) {
-      addLog_P(LOG_LEVEL_INFO, PSTR("UPnP: Multicast (re)joined"));
-      udpConnected = true;
-    } else {
-      addLog_P(LOG_LEVEL_INFO, PSTR("UPnP: Multicast join failed"));
-      udpConnected = false;
-    }
+  boolean state = false;
+
+  if (portUDP.beginMulticast(WiFi.localIP(), ipMulticast, portMulticast)) {
+    addLog_P(LOG_LEVEL_INFO, PSTR("UPnP: Multicast (re)joined"));
+    state = true;
+  } else {
+    addLog_P(LOG_LEVEL_INFO, PSTR("UPnP: Multicast join failed"));
   }
-  return udpConnected;
+  return state;
 }
 #endif  // USE_WEMO_EMULATION
 
@@ -715,7 +698,7 @@ boolean UDP_Connect()
  * Basic I2C routines
 \*********************************************************************************************/
 
-#ifdef SEND_TELEMETRY_I2C
+#ifdef USE_I2C
 #define I2C_RETRY_COUNTER 3
 
 int32_t i2c_read(uint8_t addr, uint8_t reg, uint8_t size)
@@ -809,7 +792,7 @@ void i2c_scan(char *devs, unsigned int devs_len)
     snprintf_P(devs, devs_len, PSTR("{\"I2Cscan\":\"No devices found\"}"));
   }
 }
-#endif //SEND_TELEMETRY_I2C
+#endif  // USE_I2C
 
 /*********************************************************************************************\
  * Real Time Clock

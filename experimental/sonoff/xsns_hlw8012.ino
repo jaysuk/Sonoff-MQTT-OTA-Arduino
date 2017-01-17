@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Theo Arends.  All rights reserved.
+Copyright (c) 2017 Theo Arends.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef USE_POWERMONITOR
 /*********************************************************************************************\
  * HLW8012 - Energy
  *
@@ -101,7 +100,7 @@ void hlw_200mS()
   if (hlw_cf1_timer >= 8) {
     hlw_cf1_timer = 0;
     hlw_SELflag = (hlw_SELflag) ? 0 : 1;
-    digitalWrite(HLW_SEL, hlw_SELflag);
+    digitalWrite(pin[GPIO_HLW_SEL], hlw_SELflag);
 
     if (hlw_cf1_pcnt) {
       hlw_cf1_plen = hlw_cf1_ptot / hlw_cf1_pcnt;
@@ -213,12 +212,12 @@ void hlw_init()
 
   hlw_SELflag = 0;  // Voltage;
 
-  pinMode(HLW_SEL, OUTPUT);
-  digitalWrite(HLW_SEL, hlw_SELflag);
-  pinMode(HLW_CF1, INPUT_PULLUP);
-  attachInterrupt(HLW_CF1, hlw_cf1_interrupt, FALLING);
-  pinMode(HLW_CF, INPUT_PULLUP);
-  attachInterrupt(HLW_CF, hlw_cf_interrupt, FALLING);
+  pinMode(pin[GPIO_HLW_SEL], OUTPUT);
+  digitalWrite(pin[GPIO_HLW_SEL], hlw_SELflag);
+  pinMode(pin[GPIO_HLW_CF1], INPUT_PULLUP);
+  attachInterrupt(pin[GPIO_HLW_CF1], hlw_cf1_interrupt, FALLING);
+  pinMode(pin[GPIO_HLW_CF], INPUT_PULLUP);
+  attachInterrupt(pin[GPIO_HLW_CF], hlw_cf_interrupt, FALLING);
 
   hlw_startup = 1;
   hlw_lasttime = 0;
@@ -447,6 +446,7 @@ void hlw_mqttPresent(char* stopic, uint16_t sstopic, char* svalue, uint16_t ssva
   }
 }
 
+#ifdef USE_WEBSERVER
 String hlw_webPresent()
 {
   char stemp[10];
@@ -467,5 +467,5 @@ String hlw_webPresent()
   page += F("<tr><td>Energy Yesterday: </td><td>"); page += stemp; page += F(" kWh</td></tr>");
   return page;
 }
-#endif  // USE_POWERMONITOR
+#endif  // USE_WEBSERVER
 

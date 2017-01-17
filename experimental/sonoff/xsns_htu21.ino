@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Heiko Krupp.  All rights reserved.
+ Copyright (c) 2017 Heiko Krupp.  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef SEND_TELEMETRY_I2C
+#ifdef USE_I2C
+#ifdef USE_HTU
 /*********************************************************************************************\
  * HTU21 - Temperature and Humidy
  *
@@ -253,6 +254,7 @@ void htu_mqttPresent(char* stopic, uint16_t sstopic, char* svalue, uint16_t ssva
   }
 }
 
+#ifdef USE_WEBSERVER
 String htu_webPresent()
 {
   String page = "";
@@ -270,4 +272,7 @@ String htu_webPresent()
   }
   return page;
 }
-#endif //SEND_TELEMETRY_I2C
+#endif  // USE_WEBSERVER
+#endif  // USE_HTU
+#endif  // USE_I2C
+

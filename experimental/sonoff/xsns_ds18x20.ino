@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Theo Arends.  All rights reserved.
+Copyright (c) 2017 Theo Arends.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef SEND_TELEMETRY_DS18x20
+#ifdef USE_DS18x20
 /*********************************************************************************************\
  * DS18B20 - Temperature
 \*********************************************************************************************/
@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <OneWire.h>
 
-OneWire ds(DSB_PIN);
+OneWire ds(pin[GPIO_DSB]);
 
 uint8_t ds18x20_addr[DS18X20_MAX_SENSORS][8];
 uint8_t ds18x20_idx[DS18X20_MAX_SENSORS];
@@ -187,6 +187,7 @@ void ds18x20_mqttPresent(char* stopic, uint16_t sstopic, char* svalue, uint16_t 
   if (dsxflg) snprintf_P(svalue, ssvalue, PSTR("%s}"), svalue);
 }
 
+#ifdef USE_WEBSERVER
 String ds18x20_webPresent()
 {
   char stemp[10], sconv[10];
@@ -202,4 +203,5 @@ String ds18x20_webPresent()
   }
   return page;
 }
-#endif  // SEND_TELEMETRY_DS18x20
+#endif  // USE_WEBSERVER
+#endif  // USE_DS18x20

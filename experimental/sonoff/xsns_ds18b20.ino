@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Theo Arends.  All rights reserved.
+Copyright (c) 2017 Theo Arends.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef SEND_TELEMETRY_DS18B20
+#ifdef USE_DS18B20
 /*********************************************************************************************\
  * DS18B20 - Temperature
  *
@@ -35,17 +35,17 @@ uint8_t dsb_reset()
   uint8_t r;
   uint8_t retries = 125;
 
-  pinMode(DSB_PIN, INPUT);
+  pinMode(pin[GPIO_DSB], INPUT);
   do  {                                 // wait until the wire is high... just in case
     if (--retries == 0) return 0;
     delayMicroseconds(2);
-  } while (!digitalRead(DSB_PIN));
-  pinMode(DSB_PIN, OUTPUT);
-  digitalWrite(DSB_PIN, LOW);
+  } while (!digitalRead(pin[GPIO_DSB]));
+  pinMode(pin[GPIO_DSB], OUTPUT);
+  digitalWrite(pin[GPIO_DSB], LOW);
   delayMicroseconds(492);               // Dallas spec. = Min. 480uSec. Arduino 500uSec.
-  pinMode(DSB_PIN, INPUT);              // Float
+  pinMode(pin[GPIO_DSB], INPUT);        // Float
   delayMicroseconds(40);
-  r = !digitalRead(DSB_PIN);
+  r = !digitalRead(pin[GPIO_DSB]);
   delayMicroseconds(420);
   return r;
 }
@@ -54,12 +54,12 @@ uint8_t dsb_read_bit(void)
 {
   uint8_t r;
 
-  pinMode(DSB_PIN, OUTPUT);
-  digitalWrite(DSB_PIN, LOW);
+  pinMode(pin[GPIO_DSB], OUTPUT);
+  digitalWrite(pin[GPIO_DSB], LOW);
   delayMicroseconds(3);
-  pinMode(DSB_PIN, INPUT);             // let pin float, pull up will raise
+  pinMode(pin[GPIO_DSB], INPUT);        // let pin float, pull up will raise
   delayMicroseconds(10);
-  r = digitalRead(DSB_PIN);
+  r = digitalRead(pin[GPIO_DSB]);
   delayMicroseconds(53);
   return r;
 }
@@ -77,16 +77,16 @@ uint8_t dsb_read(void)
 void dsb_write_bit(uint8_t v)
 {
   if (v & 1) {
-    digitalWrite(DSB_PIN, LOW);
-    pinMode(DSB_PIN, OUTPUT);
+    digitalWrite(pin[GPIO_DSB], LOW);
+    pinMode(pin[GPIO_DSB], OUTPUT);
     delayMicroseconds(10);
-    digitalWrite(DSB_PIN, HIGH);
+    digitalWrite(pin[GPIO_DSB], HIGH);
     delayMicroseconds(55);
   } else {
-    digitalWrite(DSB_PIN, LOW);
-    pinMode(DSB_PIN, OUTPUT);
+    digitalWrite(pin[GPIO_DSB], LOW);
+    pinMode(pin[GPIO_DSB], OUTPUT);
     delayMicroseconds(65);
-    digitalWrite(DSB_PIN, HIGH);
+    digitalWrite(pin[GPIO_DSB], HIGH);
     delayMicroseconds(5);
   }
 }
@@ -190,6 +190,7 @@ void dsb_mqttPresent(char* stopic, uint16_t sstopic, char* svalue, uint16_t ssva
   }
 }
 
+#ifdef USE_WEBSERVER
 String dsb_webPresent()
 {
   // Needs TelePeriod to refresh data (Do not do it here as it takes too much time)
@@ -204,4 +205,5 @@ String dsb_webPresent()
   }
   return page;
 }
-#endif  // SEND_TELEMETRY_DS18B20
+#endif  // USE_WEBSERVER
+#endif  // USE_DS18B20

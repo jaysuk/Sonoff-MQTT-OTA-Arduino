@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Theo Arends.  All rights reserved.
+Copyright (c) 2017 Theo Arends.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef SEND_TELEMETRY_DHT
+#ifdef USE_DHT
 /*********************************************************************************************\
  * DHT11, DHT21 (AM2301), DHT22 (AM2302, AM2321) - Temperature and Humidy
  *
@@ -41,14 +41,14 @@ float mt, mh = 0;
 
 void dht_readPrep()
 {
-  digitalWrite(DHT_PIN, HIGH);
+  digitalWrite(pin[GPIO_DHT11], HIGH);
 }
 
 uint32_t dht_expectPulse(bool level)
 {
   uint32_t count = 0;
 
-  while (digitalRead(DHT_PIN) == level)
+  while (digitalRead(pin[GPIO_DHT11]) == level)
     if (count++ >= _maxcycles) return 0;
   return count;
 }
@@ -66,17 +66,17 @@ boolean dht_read()
 
   data[0] = data[1] = data[2] = data[3] = data[4] = 0;
 
-//  digitalWrite(DHT_PIN, HIGH);
+//  digitalWrite(pin[GPIO_DHT11], HIGH);
 //  delay(250);
 
-  pinMode(DHT_PIN, OUTPUT);
-  digitalWrite(DHT_PIN, LOW);
+  pinMode(pin[GPIO_DHT11], OUTPUT);
+  digitalWrite(pin[GPIO_DHT11], LOW);
   delay(20);
 
   noInterrupts();
-  digitalWrite(DHT_PIN, HIGH);
+  digitalWrite(pin[GPIO_DHT11], HIGH);
   delayMicroseconds(40);
-  pinMode(DHT_PIN, INPUT_PULLUP);
+  pinMode(pin[GPIO_DHT11], INPUT_PULLUP);
   delayMicroseconds(10);
   if (dht_expectPulse(LOW) == 0) {
     addLog_P(LOG_LEVEL_DEBUG, PSTR("DHT: Timeout waiting for start signal low pulse"));
@@ -136,7 +136,7 @@ boolean dht_readTempHum(bool S, float &t, float &h)
   }
 
   if (dht_read()) {
-    switch (DHT_TYPE) {
+    switch (dht_type) {
     case DHT11:
       h = data[0];
       t = data[2];
@@ -167,7 +167,7 @@ void dht_init()
   char log[LOGSZ];
   _maxcycles = microsecondsToClockCycles(1000);  // 1 millisecond timeout for
                                                  // reading pulses from DHT sensor.
-  pinMode(DHT_PIN, INPUT_PULLUP);
+  pinMode(pin[GPIO_DHT11], INPUT_PULLUP);
   _lastreadtime = -MIN_INTERVAL;
 
   snprintf_P(log, sizeof(log), PSTR("DHT: Max clock cycles %d"), _maxcycles);
@@ -200,6 +200,7 @@ void dht_mqttPresent(char* stopic, uint16_t sstopic, char* svalue, uint16_t ssva
   }
 }
 
+#ifdef USE_WEBSERVER
 String dht_webPresent()
 {
   char stemp[10], sconv[10];
@@ -215,4 +216,5 @@ String dht_webPresent()
   }
   return page;
 }
-#endif  // SEND_TELEMETRY_DHT
+#endif  // USE_WEBSERVER
+#endif  // USE_DHT
