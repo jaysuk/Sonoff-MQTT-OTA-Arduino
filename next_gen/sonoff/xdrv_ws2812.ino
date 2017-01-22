@@ -30,11 +30,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <NeoPixelBus.h>
 
-#if WS2812_PIN == 3
-  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(WS2812_MAX_LEDS); // For Esp8266, the Pin is omitted and it uses GPIO3 due to DMA hardware use.
-#else  
-  NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang800KbpsMethod> strip(WS2812_MAX_LEDS, WS2812_PIN);
-#endif  
+#ifdef USE_WS2812_DMA
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> *strip = NULL;
+#else
+  NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang800KbpsMethod> *strip = NULL;
+#endif  // USE_WS2812_DMA
 
 uint8_t ledTable[] = {
     0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -73,12 +73,12 @@ void do_cmnd_led(uint16_t led, byte *colstr)
   if(result) {
     if(0xFFFF == led) {
       for (i = 0; i < sysCfg.ws_pixels; i++)
-        strip.SetPixelColor(i, RgbColor(color));
+        strip->SetPixelColor(i, RgbColor(color));
     }
     else {
-      strip.SetPixelColor(led-1, RgbColor(color)); // Led 1 is strip Led 0 -> substract offset 1
+      strip->SetPixelColor(led-1, RgbColor(color)); // Led 1 is strip Led 0 -> substract offset 1
     }
-    strip.Show();
+    strip->Show();
   }
 }
 
@@ -124,30 +124,15 @@ void ws2812_setColor(char* dataBufUc)
 
 void ws2812_stripShow()
 {
-/*
-  uint32_t c;
-  uint8_t r, g, b;
-  
-  if (sysCfg.ws_ledtable) {
-    for (uint16_t i = 0; i < sysCfg.ws_pixels; i++) {
-      c = strip.getPixelColor(i);
-      r = (uint8_t)(c >> 16),
-      g = (uint8_t)(c >>  8),
-      b = (uint8_t)c;
-      strip.setPixelColor(i, ledTable[r], ledTable[g], ledTable[b]);
-    }
-  }
-  strip.Show();
-*/
   RgbColor c;  
 
   if (sysCfg.ws_ledtable) {
     for (uint16_t i = 0; i < sysCfg.ws_pixels; i++) {
-      c = strip.GetPixelColor(i);
-      strip.SetPixelColor(i, RgbColor(ledTable[c.R], ledTable[c.G], ledTable[c.B]));
+      c = strip->GetPixelColor(i);
+      strip->SetPixelColor(i, RgbColor(ledTable[c.R], ledTable[c.G], ledTable[c.B]));
     }
   }
-  strip.Show();
+  strip->Show();
 }
 
 int mod(int a, int b)
@@ -161,7 +146,7 @@ void ws2812_clock()
 {
   RgbColor c;
   
-  strip.ClearTo(0);   // Reset strip
+  strip->ClearTo(0);   // Reset strip
   float newDim = 100 / (float)sysCfg.ws_dimmer;
   float f1 = 255 / newDim;
   uint8_t i1 = (uint8_t)f1;
@@ -174,17 +159,17 @@ void ws2812_clock()
   int clksize = 600 / j;
   int i = (rtcTime.Second * 10) / clksize;
 
-  c = strip.GetPixelColor(mod(i,    j)); c.B = i1; strip.SetPixelColor(mod(i,    j), c);
+  c = strip->GetPixelColor(mod(i,    j)); c.B = i1; strip->SetPixelColor(mod(i,    j), c);
   i = (rtcTime.Minute * 10) / clksize;
-  c = strip.GetPixelColor(mod(i -1, j)); c.G = i3; strip.SetPixelColor(mod(i -1, j), c);
-  c = strip.GetPixelColor(mod(i,    j)); c.G = i1; strip.SetPixelColor(mod(i,    j), c);
-  c = strip.GetPixelColor(mod(i +1, j)); c.G = i3; strip.SetPixelColor(mod(i +1, j), c);
+  c = strip->GetPixelColor(mod(i -1, j)); c.G = i3; strip->SetPixelColor(mod(i -1, j), c);
+  c = strip->GetPixelColor(mod(i,    j)); c.G = i1; strip->SetPixelColor(mod(i,    j), c);
+  c = strip->GetPixelColor(mod(i +1, j)); c.G = i3; strip->SetPixelColor(mod(i +1, j), c);
   i = (rtcTime.Hour % 12) * (50 / clksize);
-  c = strip.GetPixelColor(mod(i -2, j)); c.R = i3; strip.SetPixelColor(mod(i -2, j), c);
-  c = strip.GetPixelColor(mod(i -1, j)); c.R = i2; strip.SetPixelColor(mod(i -1, j), c);
-  c = strip.GetPixelColor(mod(i,    j)); c.R = i1; strip.SetPixelColor(mod(i,    j), c);
-  c = strip.GetPixelColor(mod(i +1, j)); c.R = i2; strip.SetPixelColor(mod(i +1, j), c);
-  c = strip.GetPixelColor(mod(i +2, j)); c.R = i3; strip.SetPixelColor(mod(i +2, j), c);
+  c = strip->GetPixelColor(mod(i -2, j)); c.R = i3; strip->SetPixelColor(mod(i -2, j), c);
+  c = strip->GetPixelColor(mod(i -1, j)); c.R = i2; strip->SetPixelColor(mod(i -1, j), c);
+  c = strip->GetPixelColor(mod(i,    j)); c.R = i1; strip->SetPixelColor(mod(i,    j), c);
+  c = strip->GetPixelColor(mod(i +1, j)); c.R = i2; strip->SetPixelColor(mod(i +1, j), c);
+  c = strip->GetPixelColor(mod(i +2, j)); c.R = i3; strip->SetPixelColor(mod(i +2, j), c);
   ws2812_stripShow();
 }
 
@@ -239,11 +224,11 @@ void ws2812_animate()
 //    addLog(LOG_LEVEL_DEBUG, log);
 
       if (sysCfg.ws_ledtable) {
-        for (int i = 0; i < sysCfg.ws_pixels; i++) strip.SetPixelColor(i, RgbColor(ledTable[lcolor.R],ledTable[lcolor.G],ledTable[lcolor.B]));      
+        for (uint16_t i = 0; i < sysCfg.ws_pixels; i++) strip->SetPixelColor(i, RgbColor(ledTable[lcolor.R],ledTable[lcolor.G],ledTable[lcolor.B]));      
       } else {
-        for (int i = 0; i < sysCfg.ws_pixels; i++) strip.SetPixelColor(i, lcolor);
+        for (uint16_t i = 0; i < sysCfg.ws_pixels; i++) strip->SetPixelColor(i, lcolor);
       }
-      strip.Show();
+      strip->Show();
     }
   }
 }
@@ -252,17 +237,23 @@ void ws2812_update()
 {
   lany = 1;
 }
+
 void ws2812_pixels()
 {
-  strip.ClearTo(0);
-  strip.Show();
+  strip->ClearTo(0);
+  strip->Show();
   tcolor = 0;
   lany = 1;
 }
 
 void ws2812_init()
 {
-  strip.Begin();
+#ifdef USE_WS2812_DMA
+  strip = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(WS2812_MAX_LEDS);  // For Esp8266, the Pin is omitted and it uses GPIO3 due to DMA hardware use.
+#else
+  strip = new NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang800KbpsMethod>(WS2812_MAX_LEDS, pin[GPIO_WS2812]);
+#endif  // USE_WS2812_DMA
+  strip->Begin();
   ws2812_pixels();
 }
 #endif  // USE_WS2812

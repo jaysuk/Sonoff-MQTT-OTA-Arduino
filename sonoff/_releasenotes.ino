@@ -1,9 +1,20 @@
-/* 3.2.4 20170118
+/* 3.2.7 20170122
+ * Move HLW interrupts back to RAM as it generates Exception on Pow (#264)
+ *
+ * 3.2.6 20170119
+ * Fix Sonoff Pow compile error (#255)
+ * Move HLW interrupts back to ROM
+ *
+ * 3.2.5 20170119
+ * Add more FriendlyNames for Hue (#254)
+ * Add DMA support for WS2812 when using pin 3
+ *
+ * 3.2.4 20170118
  * Add HUE emulation for Alexa (#229)
- * Add basic WS2812 support (Needs external 5V power supply) (#229)
+ * Add basic WS2812 support (#229)
  * 
  * 3.2.3 20170116
- * Fix Wemo when MQTT is disabled
+ * Fix Wemo when MQTT is disabled (#245)
  *
  * 3.2.2 20170113
  * Fix PowerOnState 2 functionality after re-applying power (#230)
